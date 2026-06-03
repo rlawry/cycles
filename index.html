@@ -589,6 +589,7 @@ function startFlash(color, onDone) {
     flash.alpha -= 0.014;
     if (flash.alpha <= 0) {
       flash = null;
+      rafId = null;
       render();
       if (onDone) onDone();
       return;
