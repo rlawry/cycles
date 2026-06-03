@@ -668,21 +668,27 @@ function checkAnswer() {
   } else {
     attempts++;
     if (attempts >= 2) {
-      // Defer this graph to end of queue (once only)
       if (!deferred.has(dsIdx)) {
+        // First time failing twice — defer to end of queue and move on
         deferred.add(dsIdx);
         queue.push(dsIdx);
+        advancing          = true;
+        submitBtn.disabled = true;
+        feedbackEl.textContent = '';
+        feedbackEl.className   = '';
+        showSkip = true;
+        render();
+        setTimeout(() => {
+          showSkip = false;
+          advance();
+        }, 2200);
+      } else {
+        // Already been deferred — can't skip again, reset and let them keep trying
+        attempts = 0;
+        feedbackEl.textContent = '✗  still not right — keep trying!';
+        feedbackEl.className   = 'err';
+        startFlash('rgba(220, 110, 110, 0.42)');
       }
-      advancing          = true;
-      submitBtn.disabled = true;
-      feedbackEl.textContent = '';
-      feedbackEl.className   = '';
-      showSkip = true;
-      render();
-      setTimeout(() => {
-        showSkip = false;
-        advance();
-      }, 2200);
     } else {
       feedbackEl.textContent = `✗  not quite — one attempt remaining.`;
       feedbackEl.className   = 'err';
@@ -710,6 +716,15 @@ function advance() {
     startCowAnimation();
     return;
   }
+
+  // Queue exhausted but not all graphs solved: this graph was skipped and
+  // can't be deferred again — stay on it and let the student keep trying.
+  if (queuePos >= queue.length) {
+    queuePos = queue.length - 1;
+    feedbackEl.textContent = '✗  last one — keep trying!';
+    feedbackEl.className   = 'err';
+  }
+
   render();
 }
 
