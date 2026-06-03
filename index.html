@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cyclic Period Explorer</title>
+<title>Cyclic Periods</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -23,10 +23,8 @@ h1 { display: none; }
 #subtitle { display: none; }
 
 canvas {
-  border: 2px solid #cdb5f0;
   cursor: crosshair;
   display: block;
-  box-shadow: 0 2px 18px rgba(150,120,220,0.10);
 }
 
 #controls {
@@ -133,7 +131,7 @@ canvas {
 <canvas id="c"></canvas>
 
 <div id="controls">
-  <label for="pInput">suspected period (no units):</label>
+  <label for="pInput">length of one period (no units):</label>
   <input id="pInput" type="number" step="any" min="0.01" placeholder="e.g.  10">
   <button id="submitBtn">submit</button>
   <label id="trendLabel"><input type="checkbox" id="trendChk"> trendline</label>
@@ -144,25 +142,27 @@ canvas {
   <div id="complete-title">C O M P L E T E !</div>
   <div id="complete-sub">all ten graphs solved &mdash; well done.</div>
   <div id="cow-frame">
-    <svg xmlns="http://www.w3.org/2000/svg" width="360" height="230" viewBox="0 0 360 230">
+    <svg id="cow-svg" xmlns="http://www.w3.org/2000/svg" width="360" height="230" viewBox="0 0 360 230">
       <!-- Sky -->
       <rect width="360" height="230" fill="#dff5f8"/>
-      <!-- Sun -->
-      <circle cx="38" cy="34" r="22" fill="#f8e878"/>
-      <g stroke="#f0d840" stroke-width="2" stroke-linecap="round">
-        <line x1="38" y1="6"  x2="38" y2="0"/>
-        <line x1="38" y1="62" x2="38" y2="68"/>
-        <line x1="10" y1="34" x2="4"  y2="34"/>
-        <line x1="66" y1="34" x2="72" y2="34"/>
-        <line x1="19" y1="15" x2="15" y2="11"/>
-        <line x1="57" y1="53" x2="61" y2="57"/>
-        <line x1="57" y1="15" x2="61" y2="11"/>
-        <line x1="19" y1="53" x2="15" y2="57"/>
+      <!-- Sun — slow rotation -->
+      <g id="csun">
+        <circle cx="38" cy="34" r="22" fill="#f8e878"/>
+        <g stroke="#f0d840" stroke-width="2" stroke-linecap="round">
+          <line x1="38" y1="6"  x2="38" y2="0"/>
+          <line x1="38" y1="62" x2="38" y2="68"/>
+          <line x1="10" y1="34" x2="4"  y2="34"/>
+          <line x1="66" y1="34" x2="72" y2="34"/>
+          <line x1="19" y1="15" x2="15" y2="11"/>
+          <line x1="57" y1="53" x2="61" y2="57"/>
+          <line x1="57" y1="15" x2="61" y2="11"/>
+          <line x1="19" y1="53" x2="15" y2="57"/>
+        </g>
       </g>
       <!-- Ground -->
       <rect x="0" y="168" width="360" height="62" fill="#78c048"/>
-      <!-- Grass blades back row -->
-      <g fill="#58a030">
+      <!-- Back grass — wind sway -->
+      <g id="cgrass-back" fill="#58a030">
         <polygon points="15,168 19,148 23,168"/>
         <polygon points="40,168 44,152 48,168"/>
         <polygon points="70,168 74,145 78,168"/>
@@ -171,59 +171,68 @@ canvas {
         <polygon points="320,168 324,145 328,168"/>
         <polygon points="345,168 349,152 353,168"/>
       </g>
-      <!-- Cow tail -->
-      <path d="M 68 122 Q 42 110 46 88 Q 50 72 62 78" stroke="#c0a888" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <ellipse cx="61" cy="75" rx="9" ry="6" fill="#d8c0a0" transform="rotate(-25,61,75)"/>
-      <!-- Cow body -->
-      <ellipse cx="162" cy="128" rx="90" ry="50" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5"/>
-      <!-- Body spots -->
-      <ellipse cx="140" cy="112" rx="25" ry="18" fill="#6a5040" opacity="0.65"/>
-      <ellipse cx="185" cy="138" rx="20" ry="14" fill="#6a5040" opacity="0.65"/>
-      <ellipse cx="108" cy="135" rx="13" ry="10" fill="#6a5040" opacity="0.55"/>
-      <!-- Udder -->
-      <ellipse cx="148" cy="175" rx="24" ry="11" fill="#f4c0c0" stroke="#d09898" stroke-width="1"/>
-      <line x1="140" y1="183" x2="138" y2="190" stroke="#d09898" stroke-width="1.5"/>
-      <line x1="148" y1="185" x2="147" y2="192" stroke="#d09898" stroke-width="1.5"/>
-      <line x1="156" y1="183" x2="157" y2="190" stroke="#d09898" stroke-width="1.5"/>
-      <!-- Legs -->
-      <rect x="98"  y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/>
-      <rect x="120" y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/>
-      <rect x="175" y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/>
-      <rect x="197" y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/>
-      <!-- Hooves -->
-      <rect x="97"  y="208" width="17" height="7" fill="#806050"/>
-      <rect x="119" y="208" width="17" height="7" fill="#806050"/>
-      <rect x="174" y="208" width="17" height="7" fill="#806050"/>
-      <rect x="196" y="208" width="17" height="7" fill="#806050"/>
-      <!-- Neck -->
-      <ellipse cx="245" cy="133" rx="24" ry="36" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5"/>
-      <!-- Head -->
-      <ellipse cx="275" cy="103" rx="38" ry="32" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5"/>
-      <!-- Head spot -->
-      <ellipse cx="268" cy="92" rx="12" ry="9" fill="#6a5040" opacity="0.55"/>
-      <!-- Ear -->
-      <ellipse cx="255" cy="76" rx="11" ry="15" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5" transform="rotate(-18,255,76)"/>
-      <ellipse cx="255" cy="76" rx="6.5" ry="10" fill="#f0c0b0" transform="rotate(-18,255,76)"/>
-      <!-- Eye -->
-      <circle cx="288" cy="96" r="5.5" fill="#2a1a10"/>
-      <circle cx="290" cy="94" r="2"   fill="white"/>
-      <circle cx="291" cy="94" r="0.8" fill="#2a1a10"/>
-      <!-- Snout -->
-      <ellipse cx="305" cy="120" rx="20" ry="15" fill="#f0c0b0" stroke="#d09888" stroke-width="1"/>
-      <!-- Nostrils -->
-      <ellipse cx="299" cy="122" rx="4"  ry="3"  fill="#c08878"/>
-      <ellipse cx="311" cy="122" rx="4"  ry="3"  fill="#c08878"/>
-      <!-- Mouth line -->
-      <path d="M 290 132 Q 305 140 320 132" stroke="#b09080" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <!-- Grass in mouth -->
-      <g stroke-linecap="round">
-        <line x1="298" y1="138" x2="302" y2="162" stroke="#48a028" stroke-width="3"/>
-        <line x1="306" y1="138" x2="315" y2="158" stroke="#58b030" stroke-width="3"/>
-        <line x1="292" y1="138" x2="288" y2="164" stroke="#48a028" stroke-width="2.5"/>
-        <line x1="312" y1="138" x2="322" y2="155" stroke="#68c040" stroke-width="2.5"/>
+      <!-- Whole cow — sine body bob -->
+      <g id="cow-all">
+        <!-- Tail — circular translation -->
+        <g id="ctail">
+          <path d="M 68 122 Q 42 110 46 88 Q 50 72 62 78" stroke="#c0a888" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <ellipse cx="61" cy="75" rx="9" ry="6" fill="#d8c0a0" transform="rotate(-25,61,75)"/>
+        </g>
+        <!-- Body -->
+        <ellipse cx="162" cy="128" rx="90" ry="50" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5"/>
+        <!-- Spots -->
+        <ellipse cx="140" cy="112" rx="25" ry="18" fill="#6a5040" opacity="0.65"/>
+        <ellipse cx="185" cy="138" rx="20" ry="14" fill="#6a5040" opacity="0.65"/>
+        <ellipse cx="108" cy="135" rx="13" ry="10" fill="#6a5040" opacity="0.55"/>
+        <!-- Udder — gentle sine sway -->
+        <g id="cudder">
+          <ellipse cx="148" cy="175" rx="24" ry="11" fill="#f4c0c0" stroke="#d09898" stroke-width="1"/>
+          <line x1="140" y1="183" x2="138" y2="190" stroke="#d09898" stroke-width="1.5"/>
+          <line x1="148" y1="185" x2="147" y2="192" stroke="#d09898" stroke-width="1.5"/>
+          <line x1="156" y1="183" x2="157" y2="190" stroke="#d09898" stroke-width="1.5"/>
+        </g>
+        <!-- Legs — pendulum rotation, each with phase offset -->
+        <g id="cleg1"><rect x="98"  y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/><rect x="97"  y="208" width="17" height="7" fill="#806050"/></g>
+        <g id="cleg2"><rect x="120" y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/><rect x="119" y="208" width="17" height="7" fill="#806050"/></g>
+        <g id="cleg3"><rect x="175" y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/><rect x="174" y="208" width="17" height="7" fill="#806050"/></g>
+        <g id="cleg4"><rect x="197" y="170" width="15" height="42" fill="#f0ebe0" stroke="#b0a090" stroke-width="1"/><rect x="196" y="208" width="17" height="7" fill="#806050"/></g>
+        <!-- Neck -->
+        <ellipse cx="245" cy="133" rx="24" ry="36" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5"/>
+        <!-- Head group — nodding rotation around neck base -->
+        <g id="chead">
+          <!-- Ear — rotational flick (both ellipses grouped, base tilt via group transform) -->
+          <g id="crear" transform="rotate(-18,255,76)">
+            <ellipse cx="255" cy="76" rx="11" ry="15" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5"/>
+            <ellipse cx="255" cy="76" rx="6.5" ry="10" fill="#f0c0b0"/>
+          </g>
+          <!-- Head -->
+          <ellipse cx="275" cy="103" rx="38" ry="32" fill="#f8f4ec" stroke="#b0a090" stroke-width="1.5"/>
+          <!-- Head spot -->
+          <ellipse cx="268" cy="92" rx="12" ry="9" fill="#6a5040" opacity="0.55"/>
+          <!-- Eye — Y-scale blink around its centre -->
+          <g id="ceye">
+            <circle cx="288" cy="96" r="5.5" fill="#2a1a10"/>
+            <circle cx="290" cy="94" r="2"   fill="white"/>
+            <circle cx="291" cy="94" r="0.8" fill="#2a1a10"/>
+          </g>
+          <!-- Snout / jaw — linear chew (up-down) -->
+          <g id="csnout">
+            <ellipse cx="305" cy="120" rx="20" ry="15" fill="#f0c0b0" stroke="#d09888" stroke-width="1"/>
+            <ellipse cx="299" cy="122" rx="4" ry="3" fill="#c08878"/>
+            <ellipse cx="311" cy="122" rx="4" ry="3" fill="#c08878"/>
+            <path d="M 290 132 Q 305 140 320 132" stroke="#b09080" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </g>
+          <!-- Mouth grass — rotational chew -->
+          <g id="cmgrass" stroke-linecap="round">
+            <line x1="298" y1="138" x2="302" y2="162" stroke="#48a028" stroke-width="3"/>
+            <line x1="306" y1="138" x2="315" y2="158" stroke="#58b030" stroke-width="3"/>
+            <line x1="292" y1="138" x2="288" y2="164" stroke="#48a028" stroke-width="2.5"/>
+            <line x1="312" y1="138" x2="322" y2="155" stroke="#68c040" stroke-width="2.5"/>
+          </g>
+        </g>
       </g>
-      <!-- Front grass blades -->
-      <g fill="#68b840">
+      <!-- Front grass — opposite wind sway -->
+      <g id="cgrass-front" fill="#68b840">
         <polygon points="0,168 5,142 10,168"/>
         <polygon points="30,168 35,148 40,168"/>
         <polygon points="60,168 65,138 70,168"/>
@@ -281,13 +290,18 @@ const MARKERS = ['circle', 'square', 'triangle', 'diamond', 'cross'];
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-let curIdx      = 0;
-let allData     = [];
+let queue       = [];   // dataset indices in play order (grows when graphs deferred)
+let queuePos    = 0;    // current position in queue
+let allData     = [];   // allData[datasetIdx] = generated points
+let attempts    = 0;    // wrong attempts on current graph
+let deferred    = new Set(); // dataset indices already deferred once
+let completed   = 0;    // graphs successfully answered
 let mouseX      = null;
 let flash       = null;
 let rafId       = null;
 let advancing   = false;
 let showTrend   = false;
+let showSkip    = false; // "TRY AGAIN LATER!" overlay active
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
 
@@ -310,14 +324,17 @@ function envelope(cfg, x) {
 }
 
 function generateDataset(cfg) {
-  const pts = [];
+  const h      = Math.random() * 360;
+  const fill   = `hsl(${h}, 68%, 76%)`;
+  const stroke = `hsl(${h}, 55%, 48%)`;
+  const pts    = [];
   for (let i = 0; i < cfg.nPts; i++) {
     const x = (i / (cfg.nPts - 1)) * cfg.xMax;
     const y = cfg.amp * envelope(cfg, x) * Math.sin(2 * Math.PI * x / cfg.period + cfg.phase)
               + (Math.random() - 0.5) * 2 * cfg.noise;
     pts.push({ x, y });
   }
-  return pts;
+  return { pts, fill, stroke };
 }
 
 // ─── Coordinate helpers ───────────────────────────────────────────────────────
@@ -367,12 +384,14 @@ function niceTicks(lo, hi, n) {
 function render() {
   ctx.clearRect(0, 0, W, H);
 
-  const cfg = DATASETS[curIdx];
-  const pts = allData[curIdx];
-  const pal = PALETTES[curIdx];
+  const dsIdx = queue[queuePos];
+  const cfg = DATASETS[dsIdx];
+  const { pts, fill: mFill, stroke: mStroke } = allData[dsIdx];
+  const pal = PALETTES[dsIdx];
   const b   = box();
 
-  // Background
+  // Background — sync page to match canvas
+  document.body.style.background = pal.bg;
   ctx.fillStyle = pal.bg;
   ctx.fillRect(0, 0, W, H);
 
@@ -467,21 +486,22 @@ function render() {
   }
 
   // ── Scatter markers ──
-  const marker = MARKERS[curIdx % MARKERS.length];
+  const marker = MARKERS[dsIdx % MARKERS.length];
+  ctx.fillStyle   = mFill;
+  ctx.strokeStyle = mStroke;
+  ctx.lineWidth   = 0.9;
   for (const pt of pts) {
     const { px, py } = toPx(pt.x, pt.y, xMin, xMax, yMin, yMax, b);
-    ctx.fillStyle   = pal.dot;
-    ctx.strokeStyle = pal.line;
-    ctx.lineWidth   = 0.9;
     drawMarker(ctx, marker, px, py, 4.5);
   }
 
-  // ── Graph counter (top left, inside plot) ──
-  ctx.fillStyle    = '#b0a0cc';
-  ctx.font         = '11px Courier New';
-  ctx.textAlign    = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText(`graph ${curIdx + 1} / ${DATASETS.length}`, b.x0 + 6, b.y0 + 5);
+  // ── Graph counter (top centre, prominent) ──
+  ctx.fillStyle    = '#7050a8';
+  ctx.font         = 'bold 15px Courier New';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  const retryTag = deferred.has(dsIdx) ? '  [ retry ]' : '';
+  ctx.fillText(`graph  ${completed + 1}  /  ${DATASETS.length}${retryTag}`, W / 2, PAD.top / 2);
 
   // ── Cursor vertical line + x readout ──
   if (mouseX !== null && mouseX >= b.x0 && mouseX <= b.x1) {
@@ -495,22 +515,42 @@ function render() {
     ctx.setLineDash([]);
     ctx.restore();
 
-    // Readout box — upper-right margin of canvas
-    const dataX = toDataX(mouseX, xMin, xMax, b);
-    const label = `t = ${dataX.toFixed(2)}`;
-    ctx.font    = '12px Courier New';
-    const tw    = ctx.measureText(label).width + 16;
-    const rx    = W - PAD.right + 6;
-    const ry    = PAD.top;
+    // Readout box — floats just above the cursor
+    const dataX  = toDataX(mouseX, xMin, xMax, b);
+    const label  = `t = ${dataX.toFixed(2)}`;
+    ctx.font     = '12px Courier New';
+    const bw     = ctx.measureText(label).width + 16;
+    const bh     = 22;
+    const gap    = 8;
+    // centre on cursor, clamp so box stays inside canvas
+    let rx = mouseX - bw / 2;
+    rx = Math.max(b.x0, Math.min(b.x1 - bw, rx));
+    const ry = b.y0 + gap;
     ctx.fillStyle = '#ece4fc';
-    ctx.fillRect(rx, ry, PAD.right - 10, 22);
+    ctx.fillRect(rx, ry, bw, bh);
     ctx.strokeStyle = '#c0a8e8';
     ctx.lineWidth   = 1;
-    ctx.strokeRect(rx, ry, PAD.right - 10, 22);
+    ctx.strokeRect(rx, ry, bw, bh);
     ctx.fillStyle    = '#6040a0';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(label, rx + (PAD.right - 10) / 2, ry + 11);
+    ctx.fillText(label, rx + bw / 2, ry + bh / 2);
+  }
+
+  // ── "TRY AGAIN LATER!" overlay ──
+  if (showSkip) {
+    ctx.save();
+    ctx.fillStyle   = 'rgba(40, 20, 60, 0.72)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle   = '#ffdd55';
+    ctx.font        = 'bold 52px Courier New';
+    ctx.textAlign   = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('TRY AGAIN LATER!', W / 2, H / 2);
+    ctx.font        = '18px Courier New';
+    ctx.fillStyle   = '#ffcc88';
+    ctx.fillText('moving on  —  we\'ll come back to this one', W / 2, H / 2 + 62);
+    ctx.restore();
   }
 
   // ── Flash overlay ──
@@ -603,7 +643,7 @@ function startFlash(color, onDone) {
 // ─── Answer checking ──────────────────────────────────────────────────────────
 
 function checkAnswer() {
-  if (advancing) return;
+  if (advancing || showSkip) return;
   const val = parseFloat(pInput.value);
   if (!isFinite(val) || val <= 0) {
     feedbackEl.textContent = 'please enter a positive number.';
@@ -611,27 +651,50 @@ function checkAnswer() {
     return;
   }
 
-  const truePeriod = DATASETS[curIdx].period;
+  const dsIdx      = queue[queuePos];
+  const truePeriod = DATASETS[dsIdx].period;
   const tolerance  = Math.max(0.8, truePeriod * 0.12);
 
   if (Math.abs(val - truePeriod) <= tolerance) {
     advancing          = true;
     submitBtn.disabled = true;
+    attempts           = 0;
     feedbackEl.textContent = `✓  correct!  the period is ${truePeriod}.`;
     feedbackEl.className   = 'ok';
-    startFlash(PALETTES[curIdx].flash, () => {
+    completed++;
+    startFlash(PALETTES[dsIdx].flash, () => {
       setTimeout(advance, 350);
     });
   } else {
-    feedbackEl.textContent = '✗  not quite — try again.';
-    feedbackEl.className   = 'err';
-    startFlash('rgba(220, 110, 110, 0.42)');
+    attempts++;
+    if (attempts >= 2) {
+      // Defer this graph to end of queue (once only)
+      if (!deferred.has(dsIdx)) {
+        deferred.add(dsIdx);
+        queue.push(dsIdx);
+      }
+      advancing          = true;
+      submitBtn.disabled = true;
+      feedbackEl.textContent = '';
+      feedbackEl.className   = '';
+      showSkip = true;
+      render();
+      setTimeout(() => {
+        showSkip = false;
+        advance();
+      }, 2200);
+    } else {
+      feedbackEl.textContent = `✗  not quite — one attempt remaining.`;
+      feedbackEl.className   = 'err';
+      startFlash('rgba(220, 110, 110, 0.42)');
+    }
   }
 }
 
 function advance() {
-  curIdx++;
+  queuePos++;
   advancing          = false;
+  attempts           = 0;
   submitBtn.disabled = false;
   pInput.value       = '';
   feedbackEl.textContent = '';
@@ -639,11 +702,12 @@ function advance() {
   showTrend        = false;
   trendChk.checked = false;
 
-  if (curIdx >= DATASETS.length) {
+  if (completed >= DATASETS.length) {
     canvas.style.display     = 'none';
     controlsEl.style.display = 'none';
     feedbackEl.style.display = 'none';
     completeEl.style.display = 'flex';
+    startCowAnimation();
     return;
   }
   render();
@@ -671,9 +735,104 @@ pInput.addEventListener('keydown', e => {
 });
 pInput.addEventListener('focus', () => { pInput.placeholder = ''; }, { once: true });
 
+// ─── Cow animation ───────────────────────────────────────────────────────────
+
+function startCowAnimation() {
+  const PI = Math.PI;
+  const csun        = document.getElementById('csun');
+  const cowAll      = document.getElementById('cow-all');
+  const ctail       = document.getElementById('ctail');
+  const chead       = document.getElementById('chead');
+  const crear       = document.getElementById('crear');
+  const ceye        = document.getElementById('ceye');
+  const csnout      = document.getElementById('csnout');
+  const cmgrass     = document.getElementById('cmgrass');
+  const cudder      = document.getElementById('cudder');
+  const cleg1       = document.getElementById('cleg1');
+  const cleg2       = document.getElementById('cleg2');
+  const cleg3       = document.getElementById('cleg3');
+  const cleg4       = document.getElementById('cleg4');
+  const cgrassBack  = document.getElementById('cgrass-back');
+  const cgrassFront = document.getElementById('cgrass-front');
+
+  function frame() {
+    const t = Date.now() / 1000;
+
+    // Sun: slow rotation (rotational)
+    csun.setAttribute('transform', `rotate(${t * 13}, 38, 34)`);
+
+    // Whole cow: breathing sine bob (sine)
+    const bob = Math.sin(t * 1.05) * 2.2;
+    cowAll.setAttribute('transform', `translate(0, ${bob})`);
+
+    // Tail: figure-eight — circular X + sine Y at double rate
+    const tx = Math.cos(t * 2.1) * 10;
+    const ty = Math.sin(t * 4.2) * 5;
+    ctail.setAttribute('transform', `translate(${tx}, ${ty})`);
+
+    // Head: slow nod rotation around neck base (rotational)
+    const headRot = Math.sin(t * 0.72) * 3.5;
+    chead.setAttribute('transform', `rotate(${headRot}, 238, 128)`);
+
+    // Ear: quick flick rotation, base tilt preserved (rotational)
+    const earAngle = -18 + Math.sin(t * 2.9) * 10;
+    crear.setAttribute('transform', `rotate(${earAngle}, 255, 76)`);
+
+    // Eye: blink — scale Y around eye centre (sine threshold)
+    const blinkRaw = Math.sin(t * 0.55);
+    let blinkS = 1;
+    if (blinkRaw > 0.97)       blinkS = Math.max(0.05, 1 - (blinkRaw - 0.97) / 0.03);
+    else if (blinkRaw < -0.97) blinkS = Math.max(0.05, 1 - (-blinkRaw - 0.97) / 0.03);
+    // SVG scale around (288, 96): translate to origin, scale, translate back
+    ceye.setAttribute('transform',
+      `translate(288,96) scale(1,${blinkS}) translate(-288,-96)`);
+
+    // Snout/jaw: linear chew up-down (linear)
+    const jawY = Math.abs(Math.sin(t * 2.4)) * 2.8;
+    csnout.setAttribute('transform', `translate(0, ${jawY})`);
+
+    // Mouth grass: rotational chew synced to jaw (rotational)
+    const chewRot = Math.sin(t * 2.4) * 8;
+    cmgrass.setAttribute('transform', `rotate(${chewRot}, 300, 138)`);
+
+    // Udder: gentle sine sway side-to-side (sine)
+    const udderX = Math.sin(t * 1.05) * 1.2;
+    cudder.setAttribute('transform', `translate(${udderX}, 0)`);
+
+    // Legs: pendulum rotation with alternating phase offsets (rotational + sine)
+    const la = 3.8, ls = 1.25;
+    cleg1.setAttribute('transform', `rotate(${Math.sin(t*ls + 0)       * la}, 105.5, 170)`);
+    cleg2.setAttribute('transform', `rotate(${Math.sin(t*ls + PI)      * la}, 127.5, 170)`);
+    cleg3.setAttribute('transform', `rotate(${Math.sin(t*ls + PI*0.5)  * la}, 182.5, 170)`);
+    cleg4.setAttribute('transform', `rotate(${Math.sin(t*ls + PI*1.5)  * la}, 204.5, 170)`);
+
+    // Back grass: gentle wind sway rotation around base midpoint (sine)
+    cgrassBack.setAttribute('transform',
+      `rotate(${Math.sin(t * 0.9) * 3.5}, 180, 168)`);
+
+    // Front grass: opposite phase wind sway (sine, opposite)
+    cgrassFront.setAttribute('transform',
+      `rotate(${Math.sin(t * 0.9 + PI) * 4}, 180, 168)`);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 
-for (const cfg of DATASETS) allData.push(generateDataset(cfg));
+// Pre-generate data for every dataset, indexed by dataset index
+for (let i = 0; i < DATASETS.length; i++) {
+  allData.push(generateDataset(DATASETS[i]));
+}
+
+// Fisher-Yates shuffle builds the initial play queue
+queue = DATASETS.map((_, i) => i);
+for (let i = queue.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [queue[i], queue[j]] = [queue[j], queue[i]];
+}
+
 render();
 </script>
 </body>
